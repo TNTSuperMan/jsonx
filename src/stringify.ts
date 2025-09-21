@@ -5,7 +5,7 @@ const binary2hex = (bin: number[]) =>
 
 export const stringify = (value: unknown): string => {
     const refs = new WeakMap<WeakKey, number>();
-    let ref_count = 10;
+    let ref_count = 11;
     const addRef = (obj: object): number => {
         refs.set(obj, ++ref_count);
         return ref_count
@@ -15,11 +15,11 @@ export const stringify = (value: unknown): string => {
         switch(typeof value) {
             case "string": case "boolean": case "number":
                 if(Number.isNaN(value))
-                    return [8];
-                else if(value === Infinity)
                     return [9];
-                else if(value === -Infinity)
+                else if(value === Infinity)
                     return [10];
+                else if(value === -Infinity)
+                    return [11];
                 return value;
             case "bigint":
                 return [value.toString()];
@@ -34,10 +34,12 @@ export const stringify = (value: unknown): string => {
                     return [0, addRef(value), value.toString()];
                 if(value instanceof Boolean)
                     return [0, addRef(value), value.valueOf()];
+                if(value instanceof Number)
+                    return [0, addRef(value), value.valueOf()];
                 if(value instanceof Date)
-                    return [0, addRef(value), value.getTime()];
+                    return [1, addRef(value), value.getTime()];
                 if(value instanceof RegExp)
-                    return [1, addRef(value), value.source, value.flags];
+                    return [2, addRef(value), value.source, value.flags];
                 if(value instanceof Blob)
                     throw new Error("Blob not implemented");
                 if(value instanceof File)
@@ -63,14 +65,14 @@ export const stringify = (value: unknown): string => {
                     if(type === null)
                         throw new Error("Unknown ArrayBufferView", { cause: value });
 
-                    return [4, addRef(value), type, hex];
+                    return [5, addRef(value), type, hex];
                 }
                 if(Array.isArray(value))
-                    return [5, addRef(value), ...value.map(serialize)];
+                    return [6, addRef(value), ...value.map(serialize)];
                 if(value instanceof Map)
-                    return [6, addRef(value), value.entries().map(([k,v])=>[serialize(k), serialize(v)] as [Serialized, Serialized]).toArray()];
+                    return [7, addRef(value), value.entries().map(([k,v])=>[serialize(k), serialize(v)] as [Serialized, Serialized]).toArray()];
                 if(value instanceof Set)
-                    return [7, addRef(value), ...value.values().map(serialize)];
+                    return [8, addRef(value), ...value.values().map(serialize)];
 
                 const ref = addRef(value);
                 return [Object.fromEntries(Object.entries(value).map(([k,v])=>[k,serialize(v)])), ref];

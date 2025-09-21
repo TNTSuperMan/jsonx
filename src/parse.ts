@@ -29,15 +29,17 @@ export const parse = (json: string): unknown => {
                         case "boolean":
                             return ref(value[1], new Boolean(value[2]));
                         case "number":
-                            return ref(value[1], new Date(value[2]));
+                            return ref(value[1], new Number(value[2]));
                     }
                 case 1:
-                    return ref(value[1], new RegExp(value[2], value[3]));
+                    return ref(value[1], new Date(value[2]));
                 case 2:
-                    return ref(value[1], new Blob([hex2binary(value[2])], { type: value[3] }));
+                    return ref(value[1], new RegExp(value[2], value[3]));
                 case 3:
-                    return ref(value[1], new File([hex2binary(value[2])], value[3], { type: value[4] ?? undefined, lastModified: value[5] }));
+                    return ref(value[1], new Blob([hex2binary(value[2])], { type: value[3] }));
                 case 4:
+                    return ref(value[1], new File([hex2binary(value[2])], value[3], { type: value[4] ?? undefined, lastModified: value[5] }));
+                case 5:
                     const buf = hex2binary(value[3]);
                     let constructor: (new (buf: Uint8Array) => ArrayBufferView|ArrayBuffer) | void;
                     switch(value[2]){
@@ -59,18 +61,18 @@ export const parse = (json: string): unknown => {
                             throw new Error(`Unknown buffer type: ${value[2]}`);
                     }
                     return ref(value[1], new constructor(buf));
-                case 5:
+                case 6:
                     const [,, ...base] = value;
                     const arr: unknown[] = [];
                     ref(value[1], arr);
                     base.forEach(e=>arr.push(deserialize(e)));
                     return arr;
-                case 6:
+                case 7:
                     const map = new Map;
                     ref(value[1], map);
                     value[2].forEach(([k, v]) => map.set(deserialize(k), deserialize(v)));
                     return map;
-                case 7:
+                case 8:
                     const [,, ...setbase] = value;
                     const set = new Set;
                     ref(value[1], set);
