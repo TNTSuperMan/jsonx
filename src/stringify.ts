@@ -34,8 +34,8 @@ export const stringify = (value: unknown): string => {
                     return [0, addRef(value), value.toString()];
                 if(value instanceof Boolean)
                     return [0, addRef(value), value.valueOf()];
-                if(value instanceof Date)
-                    return [0, addRef(value), value.getTime()];
+                if(value instanceof Number)
+                    return [0, addRef(value), value.valueOf()];
                 if(value instanceof RegExp)
                     return [1, addRef(value), value.source, value.flags];
                 if(value instanceof Blob)

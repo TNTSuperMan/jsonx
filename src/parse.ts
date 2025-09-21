@@ -29,7 +29,7 @@ export const parse = (json: string): unknown => {
                         case "boolean":
                             return ref(value[1], new Boolean(value[2]));
                         case "number":
-                            return ref(value[1], new Date(value[2]));
+                            return ref(value[1], new Number(value[2]));
                     }
                 case 1:
                     return ref(value[1], new RegExp(value[2], value[3]));

@@ -3,7 +3,7 @@ export type Serialized =
     | [8] | [9] | [10] // NaN, Infinity, -Infinity
     | [] // undefined
     | [string] // bigint
-    | [0, number, string | boolean | number] // Wrapper / Date
+    | [0, number, string | boolean | number] // Wrapper
     | [1, number, string, string] // RegExp
     | [2, number, string, string?] // Blob
     | [3, number, string, string, (string|null)?, number?] // File(hex,name,type,last)
