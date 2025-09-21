@@ -78,6 +78,12 @@ export const parse = (json: string): unknown => {
                     ref(value[1], set);
                     setbase.forEach(e=>set.add(deserialize(e)));
                     return set;
+                case 9:
+                    return NaN;
+                case 10:
+                    return Infinity;
+                case 11:
+                    return -Infinity;
                 default:
                     throw new Error(`Unknown type: ${value[0]}`);
             }
