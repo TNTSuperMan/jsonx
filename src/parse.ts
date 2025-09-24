@@ -41,26 +41,24 @@ export const parse = (json: string): unknown => {
                     return ref(value[1], new File([hex2binary(value[2])], value[3], { type: value[4] ?? undefined, lastModified: value[5] }));
                 case 5:
                     const buf = hex2binary(value[3]);
-                    let constructor: (new (buf: Uint8Array) => ArrayBufferView|ArrayBuffer) | void;
                     switch(value[2]){
-                        case 0: constructor = ArrayBuffer; break;
-                        case 1: constructor = Int8Array; break;
-                        case 2: constructor = Uint8Array; break;
-                        case 3: constructor = Uint8ClampedArray; break;
-                        case 4: constructor = Int16Array; break;
-                        case 5: constructor = Uint16Array; break;
-                        case 6: constructor = Int32Array; break;
-                        case 7: constructor = Uint32Array; break;
-                        case 8: constructor = Float16Array; break;
-                        case 9: constructor = Float32Array; break;
-                        case 10: constructor = Float64Array; break;
-                        case 11: constructor = BigInt64Array; break;
-                        case 12: constructor = BigUint64Array; break;
+                        case 0: return buf.buffer;
+                        case 1: return new Int8Array(buf);
+                        case 2: return new Uint8Array(buf);
+                        case 3: return new Uint8ClampedArray(buf);
+                        case 4: return new Int16Array(buf);
+                        case 5: return new Uint16Array(buf);
+                        case 6: return new Int32Array(buf);
+                        case 7: return new Uint32Array(buf);
+                        case 8: return new Float16Array(buf);
+                        case 9: return new Float32Array(buf);
+                        case 10: return new Float64Array(buf);
+                        case 11: return new BigInt64Array(buf.buffer);
+                        case 12: return new BigUint64Array(buf.buffer);
                         case 13: return new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
                         default:
                             throw new Error(`Unknown buffer type: ${value[2]}`);
                     }
-                    return ref(value[1], new constructor(buf));
                 case 6:
                     const [,, ...base] = value;
                     const arr: unknown[] = [];
