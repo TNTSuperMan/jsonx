@@ -1,7 +1,7 @@
 import type { Serialized } from "./types";
 
-const binary2hex = (bin: number[]) =>
-    bin.reduce((p,v)=>p.concat(v.toString(16).padStart(2, "0")),"");
+const binary2hex = (bin: ArrayBufferLike | ArrayLike<number>) =>
+    Array.from(new Uint8Array(bin as any)).map(e=>e.toString(16).padStart(2,"0")).join("");
 
 export const stringify = (value: unknown): string => {
     const refs = new WeakMap<WeakKey, number>();
@@ -45,27 +45,23 @@ export const stringify = (value: unknown): string => {
                 if(value instanceof File)
                     throw new Error("File not implemented");
                 if(ArrayBuffer.isView(value)){
-                    const hex = binary2hex(Array.from(new Uint8Array(value.buffer)));
-                    const type =
-                        value instanceof ArrayBuffer ? 0 :
-                        value instanceof Int8Array ? 1 :
-                        value instanceof Uint8Array ? 2 :
-                        value instanceof Uint8ClampedArray ? 3 :
-                        value instanceof Int16Array ? 4 :
-                        value instanceof Uint16Array ? 5 :
-                        value instanceof Int32Array ? 6 :
-                        value instanceof Uint32Array ? 7 :
-                        value instanceof Float16Array ? 8 :
-                        value instanceof Float32Array ? 9 :
-                        value instanceof Float64Array ? 10 :
-                        value instanceof BigInt64Array ? 11 :
-                        value instanceof BigUint64Array ? 12 :
-                        value instanceof DataView ? 13 :
-                        null;
-                    if(type === null)
-                        throw new Error("Unknown ArrayBufferView", { cause: value });
-
-                    return [5, addRef(value), type, hex];
+                    switch(Object.getPrototypeOf(value)) {
+                        case ArrayBuffer.prototype:       return [5, addRef(value), 0, binary2hex(value as any as ArrayBuffer)];
+                        case Int8Array.prototype:         return [5, addRef(value), 1, binary2hex(value as any as Int8Array)];
+                        case Uint8Array.prototype:        return [5, addRef(value), 2, binary2hex(value as any as Uint8Array)];
+                        case Uint8ClampedArray.prototype: return [5, addRef(value), 3, binary2hex(value as any as Uint8ClampedArray)];
+                        case Int16Array.prototype:        return [5, addRef(value), 4, binary2hex(value as any as Int16Array)];
+                        case Uint16Array.prototype:       return [5, addRef(value), 5, binary2hex(value as any as Uint16Array)];
+                        case Int32Array.prototype:        return [5, addRef(value), 6, binary2hex(value as any as Int32Array)];
+                        case Uint32Array.prototype:       return [5, addRef(value), 7, binary2hex(value as any as Uint32Array)];
+                        case Float16Array.prototype:      return [5, addRef(value), 8, binary2hex(value as any as Float16Array)];
+                        case Float32Array.prototype:      return [5, addRef(value), 9, binary2hex(value as any as Float32Array)];
+                        case Float64Array.prototype:      return [5, addRef(value), 10,binary2hex(value as any as Float64Array)];
+                        case BigInt64Array.prototype:     return [5, addRef(value), 11,binary2hex(((value as any as BigInt64Array).buffer))];
+                        case BigUint64Array.prototype:    return [5, addRef(value), 12,binary2hex(((value as any as BigUint64Array).buffer))];
+                        case DataView.prototype:          return [5, addRef(value), 13,binary2hex(((value as any as DataView).buffer))];
+                        default: throw new Error("Unknown ArrayBufferView", { cause: value });
+                    }
                 }
                 if(Array.isArray(value))
                     return [6, addRef(value), ...value.map(serialize)];
