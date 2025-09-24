@@ -1,8 +1,6 @@
 import { describe, test, expect } from "bun:test";
 import { parse, stringify } from "../src";
 
-// TODO: バグ修正したら改善する
-
 describe("buffer", () => {
     const buffer = new Uint8Array([114,51,41,91,98,10,0,0]);
     const hex = buffer.toHex();
