@@ -44,7 +44,7 @@ export const stringify = (value: unknown): string => {
                     throw new Error("Blob not implemented");
                 if(value instanceof File)
                     throw new Error("File not implemented");
-                if(ArrayBuffer.isView(value)){
+                if(ArrayBuffer.isView(value) || value instanceof ArrayBuffer){
                     switch(Object.getPrototypeOf(value)) {
                         case ArrayBuffer.prototype:       return [5, addRef(value), 0, binary2hex(value as any as ArrayBuffer)];
                         case Int8Array.prototype:         return [5, addRef(value), 1, binary2hex(value as any as Int8Array)];
